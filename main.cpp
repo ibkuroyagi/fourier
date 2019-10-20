@@ -63,43 +63,44 @@ double idft(double Re[], double Im[], double re[], double im[], int N)
 void two_dimension_fourier(Image<GRAY> src, Image<GRAY> &dst)
 {
         double re_arr[SIZE], im_arr[SIZE], Re_tmp[SIZE], Im_tmp[SIZE];
-        double Re_arr[SIZE][SIZE], Im_arr[SIZE][SIZE];//こいつやばい
+        double Re_arr[256][256], Im_arr[256][256];      //こいつやばい
         printf("src.data[0][255] = %d\n",src.data[0][255]);
 
-        // for (int i = 0; i < src.H; i++)
-        // {
-        //         for (int j = 0; j < src.W; j++)
-        //         {
-        //                 re_arr[j] = (double)src.data[i][j];
-        //                 im_arr[j] = 0.0;
-        //         }
-        //         dft(re_arr, im_arr, Re_tmp, Im_tmp, src.W);
-        //         printf("i = %d, Re_tmp[0] = %d",i,Re_tmp[0]);
-        //         for (int j = 0; j < src.W; j++)
-        //         {
-        //                 Re_arr[i][j] = Re_tmp[j];
-        //                 Im_arr[i][j] = Im_tmp[j];
-        //         }
-        // }
-        // for (int i = 0; i < src.W; i++)
-        // {
-        //         for (int j = 0; j < src.H; j++)
-        //         {
-        //                 re_arr[j] = Re_arr[j][i];
-        //                 im_arr[j] = Im_arr[j][i];
-        //         }
-        //         dft(re_arr, im_arr, Re_tmp, Im_tmp, src.H);
-        //         for (int j = 0; j < src.H; j++)
-        //         {
-        //                 dst.data[j][i] = (int)Re_tmp[j];
-        //                 // dst.data[j][i] = Im_tmp[j];
-        //         }
-        // }
+        for (int i = 0; i < src.H; i++)
+        {
+                for (int j = 0; j < src.W; j++)
+                {
+                        re_arr[j] = (double)src.data[i][j];
+                        im_arr[j] = 0.0;
+                }
+                dft(re_arr, im_arr, Re_tmp, Im_tmp, src.W);
+                // printf("i = %d, Re_tmp[0] = %lf, Im_tmp[0] = %lf\n",i,Re_tmp[0]);
+                for (int j = 0; j < src.W; j++)
+                {
+                        Re_arr[i][j] = Re_tmp[j];
+                        Im_arr[i][j] = Im_tmp[j];
+                }
+        }
+        for (int i = 0; i < src.W; i++)
+        {
+                for (int j = 0; j < src.H; j++)
+                {
+                        re_arr[j] = Re_arr[j][i];
+                        im_arr[j] = Im_arr[j][i];
+                }
+                dft(re_arr, im_arr, Re_tmp, Im_tmp, src.H);
+                for (int j = 0; j < src.H; j++)
+                {
+                        dst.data[j][i] = (int)Re_tmp[j];
+                        // dst.data[j][i] = Im_tmp[j];
+                }
+        }
 }
 
 void inverse_two_dimension_fourier(Image<GRAY> src, Image<GRAY> &dst)
 {
-        double re_arr[SIZE], im_arr[SIZE], Re_arr[SIZE][SIZE], Im_arr[SIZE][SIZE], Re_tmp[SIZE], Im_tmp[SIZE];
+        double re_arr[SIZE], im_arr[SIZE],  Re_tmp[SIZE], Im_tmp[SIZE];
+        double Re_arr[256][256], Im_arr[256][256];
         for (int i = 0; i < src.H; i++)
         {
                 for (int j = 0; j < src.W; j++)
@@ -108,7 +109,7 @@ void inverse_two_dimension_fourier(Image<GRAY> src, Image<GRAY> &dst)
                         im_arr[j] = 0.0;
                 }
                 idft(re_arr, im_arr, Re_tmp, Im_tmp, src.W);
-                printf("i = %d, Re_tmp[0] = %d",i,Re_tmp[0]);
+                // printf("i = %d, Re_tmp[0] = %lf\n",i,Re_tmp[0]);
                 for (int j = 0; j < src.W; j++)
                 {
                         Re_arr[i][j] = Re_tmp[j];
@@ -189,12 +190,13 @@ int main(void)
         // 2次元離散フーリエ変換
         //グレー画像
         //■配列の宣言
-        Image<GRAY> gray, gout;
+        Image<GRAY> gray, gout_dft, gout_idft;
         char path2[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\pictures\\lenna.pgm";
         //■画像ロード
         gray.load(path2); //lenna.pgmをgrayにロードする
         //■出力配列確保
-        gout.create(gray.W, gray.H); // goutに img.W(画像imgの横幅) x img.H(画像imgの縦幅) の大きさの画素配列を用意する
+        gout_dft.create(gray.W, gray.H); // goutに img.W(画像imgの横幅) x img.H(画像imgの縦幅) の大きさの画素配列を用意する
+        gout_idft.create(gray.W, gray.H);
         //■画像処理//////////////////////////////////////////////////////////////
         // Binarization(gray, gout, 128); //grayを閾値128で二値化してgoutに出力
         // for(int i=0;i<gray.H;i++){
@@ -202,18 +204,27 @@ int main(void)
         //                 printf("")
         //         }
         // }
-        for(int i=0;i<gray.H;i++){
-                printf("gray.data[0][%d] = %d\n",i,gray.data[0][i]);
-        }
+        // for(int i=0;i<gray.H;i++){
+        //         printf("gray.data[0][%d] = %d\n",i,gray.data[0][i]);
+        // }
 
-        two_dimension_fourier(gray,gout);
+        two_dimension_fourier(gray,gout_dft);
+        // for(int i=0;i<gout_dft.H;i++){
+        //         printf("gout_dft.data[0][%d] = %d\n",i,gout_dft.data[0][i]);
+        // }
+        char gout_dft_path[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\results\\two_dft_lenna.pgm";
+        gout_dft.save(gout_dft_path); 
 
-        for(int i=0;i<gout.H;i++){
-                printf("gout.data[0][%d] = %d\n",i,gout.data[0][i]);
+        inverse_two_dimension_fourier(gout_dft,gout_idft);
+
+        for(int i=0;i<gout_idft.H;i++){
+                for(int j=0;j<gout_idft.W;j++){
+                printf("%4d, ",gray.data[i][j] - gout_idft.data[i][j]);
+                }
+                printf("\n");
         }
-        char gout_path[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\results\\two_dft_lenna.pgm";
-        //■保存
-        gout.save(gout_path); // Binarization.pgm という名前でgoutを保存
+        char gout_idft_path[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\results\\two_idft_lenna.pgm";
+        gout_idft.save(gout_idft_path); 
 
 
         // Image<COLOR> img,dst,nega;	//カラー画像
