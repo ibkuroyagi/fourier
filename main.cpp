@@ -105,28 +105,28 @@ void inverse_two_dimension_fourier(Image<GRAY> src, Image<GRAY> &dst)
         {
                 for (int j = 0; j < src.W; j++)
                 {
-                        re_arr[j] = (double)src.data[i][j];
+                        re_arr[j] = (double)src.data[j][i];
                         im_arr[j] = 0.0;
                 }
                 idft(re_arr, im_arr, Re_tmp, Im_tmp, src.W);
                 // printf("i = %d, Re_tmp[0] = %lf\n",i,Re_tmp[0]);
                 for (int j = 0; j < src.W; j++)
                 {
-                        Re_arr[i][j] = Re_tmp[j];
-                        Im_arr[i][j] = Im_tmp[j];
+                        Re_arr[j][i] = Re_tmp[j];
+                        Im_arr[j][i] = Im_tmp[j];
                 }
         }
         for (int i = 0; i < src.W; i++)
         {
                 for (int j = 0; j < src.H; j++)
                 {
-                        re_arr[j] = Re_arr[j][i];
-                        im_arr[j] = Im_arr[j][i];
+                        re_arr[j] = Re_arr[i][j];
+                        im_arr[j] = Im_arr[i][j];
                 }
                 idft(re_arr, im_arr, Re_tmp, Im_tmp, src.H);
                 for (int j = 0; j < src.H; j++)
                 {
-                        dst.data[j][i] = (int)Re_tmp[j];
+                        dst.data[i][j] = (int)Re_tmp[j];
                         // dst.data[j][i] = Im_tmp[j];
                 }
         }
@@ -217,12 +217,12 @@ int main(void)
 
         inverse_two_dimension_fourier(gout_dft,gout_idft);
 
-        for(int i=0;i<gout_idft.H;i++){
-                for(int j=0;j<gout_idft.W;j++){
-                printf("%4d, ",gray.data[i][j] - gout_idft.data[i][j]);
-                }
-                printf("\n");
-        }
+        // for(int i=0;i<gout_idft.H;i++){
+        //         for(int j=0;j<gout_idft.W;j++){
+        //         printf("%4d, ",gray.data[i][j] - gout_idft.data[i][j]);
+        //         }
+        //         printf("\n");
+        // }
         char gout_idft_path[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\results\\two_idft_lenna.pgm";
         gout_idft.save(gout_idft_path); 
 
