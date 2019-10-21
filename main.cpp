@@ -263,6 +263,195 @@ void inverse_two_dimension_fourier(Image<GRAY> src, Image<GRAY> &dst, char funct
         }
 }
 
+void two_dimension_fourier_color(Image<COLOR> src, Image<COLOR> &dst, char function[])
+{       
+        // printf("src.data[0][255].r = %d\n",src.data[0][255].r);
+        // double re_arr_r[SIZE], im_arr_r[SIZE], Re_tmp_r[SIZE], Im_tmp_r[SIZE];
+        // double re_arr_b[SIZE], im_arr_b[SIZE], Re_tmp_b[SIZE], Im_tmp_b[SIZE];
+        // double re_arr_g[SIZE], im_arr_g[SIZE], Re_tmp_g[SIZE], Im_tmp_g[SIZE];
+        double re_arr_r[256], im_arr_r[256], Re_tmp_r[256], Im_tmp_r[256];
+        double re_arr_b[256], im_arr_b[256], Re_tmp_b[256], Im_tmp_b[256];
+        double re_arr_g[256], im_arr_g[256], Re_tmp_g[256], Im_tmp_g[256];
+        double Re_arr_r[256][256], Im_arr_r[256][256]; 
+        double Re_arr_b[256][256], Im_arr_b[256][256];
+        double Re_arr_g[256][256], Im_arr_g[256][256];
+        // printf("src.data[0][255].r = %d\n",src.data[0][255].r);
+
+        for (int i = 0; i < src.H; i++)
+        {
+                for (int j = 0; j < src.W; j++)
+                {
+                        re_arr_r[j] = (double)src.data[i][j].r;
+                        im_arr_r[j] = 0.0;
+                        re_arr_b[j] = (double)src.data[i][j].b;
+                        im_arr_b[j] = 0.0;
+                        re_arr_g[j] = (double)src.data[i][j].g;
+                        im_arr_g[j] = 0.0;
+                }
+                if (strcmp(function, "dft") == 0)
+                {
+                        dft(re_arr_r, im_arr_r, Re_tmp_r, Im_tmp_r, src.W);
+                        dft(re_arr_b, im_arr_b, Re_tmp_b, Im_tmp_b, src.W);
+                        dft(re_arr_g, im_arr_g, Re_tmp_g, Im_tmp_g, src.W);
+                        // printf("i = %d, Re_tmp_r[0] = %lf\n",i,Re_tmp_r[10]);
+                        for (int j = 0; j < src.W; j++)
+                        {
+                                Re_arr_r[i][j] = Re_tmp_r[j];
+                                Im_arr_r[i][j] = Im_tmp_r[j];
+                                Re_arr_b[i][j] = Re_tmp_b[j];
+                                Im_arr_b[i][j] = Im_tmp_b[j];
+                                Re_arr_g[i][j] = Re_tmp_g[j];
+                                Im_arr_g[i][j] = Im_tmp_g[j];
+                        }
+                }
+                else if (strcmp(function, "fft") == 0)
+                {
+                        fft(src.W, -1, re_arr_r, im_arr_r);
+                        fft(src.W, -1, re_arr_b, im_arr_b);
+                        fft(src.W, -1, re_arr_g, im_arr_g);
+                        // printf("i = %d, re_arr_r[0] = %lf\n",i,re_arr_r[10]);
+                        for (int j = 0; j < src.W; j++)
+                        {
+                                Re_arr_r[i][j] = re_arr_r[j];
+                                Im_arr_r[i][j] = im_arr_r[j];
+                                Re_arr_b[i][j] = re_arr_b[j];
+                                Im_arr_b[i][j] = im_arr_b[j];
+                                Re_arr_g[i][j] = re_arr_g[j];
+                                Im_arr_g[i][j] = im_arr_g[j];
+                        }
+                }
+        }
+        for (int i = 0; i < src.W; i++)
+        {
+                for (int j = 0; j < src.H; j++)
+                {
+                        re_arr_r[j] = Re_arr_r[j][i];
+                        im_arr_r[j] = Im_arr_r[j][i];
+                        re_arr_b[j] = Re_arr_b[j][i];
+                        im_arr_b[j] = Im_arr_b[j][i];
+                        re_arr_g[j] = Re_arr_g[j][i];
+                        im_arr_g[j] = Im_arr_g[j][i];
+                }
+                if (strcmp(function, "dft") == 0)
+                {
+                        dft(re_arr_r, im_arr_r, Re_tmp_r, Im_tmp_r, src.H);
+                        dft(re_arr_b, im_arr_b, Re_tmp_b, Im_tmp_b, src.H);
+                        dft(re_arr_g, im_arr_g, Re_tmp_g, Im_tmp_g, src.H);
+                        for (int j = 0; j < src.H; j++)
+                        {
+                                dst.data[j][i].r = (int)Re_tmp_r[j];
+                                dst.data[j][i].b = (int)Re_tmp_b[j];
+                                dst.data[j][i].g = (int)Re_tmp_g[j];
+                        }
+                }
+                else if (strcmp(function, "fft") == 0)
+                {
+                        fft(src.H, -1, re_arr_r, im_arr_r);
+                        fft(src.H, -1, re_arr_b, im_arr_b);
+                        fft(src.H, -1, re_arr_g, im_arr_g);
+                        // printf("i = %d, cross_re_arr[0] = %lf\n",i,re_arr[0]);
+                        for (int j = 0; j < src.W; j++)
+                        {
+                                dst.data[j][i].r = (int)re_arr_r[j];
+                                dst.data[j][i].b = (int)re_arr_b[j];
+                                dst.data[j][i].g = (int)re_arr_g[j];
+                        }
+                }
+        }
+}
+
+void inverse_two_dimension_fourier_color(Image<COLOR> src, Image<COLOR> &dst, char function[])
+{
+        double re_arr_r[SIZE], im_arr_r[SIZE], Re_tmp_r[SIZE], Im_tmp_r[SIZE];
+        double re_arr_b[SIZE], im_arr_b[SIZE], Re_tmp_b[SIZE], Im_tmp_b[SIZE];
+        double re_arr_g[SIZE], im_arr_g[SIZE], Re_tmp_g[SIZE], Im_tmp_g[SIZE];
+        double Re_arr_r[256][256], Im_arr_r[256][256]; 
+        double Re_arr_b[256][256], Im_arr_b[256][256];
+        double Re_arr_g[256][256], Im_arr_g[256][256];
+
+        for (int i = 0; i < src.H; i++)
+        {
+                for (int j = 0; j < src.W; j++)
+                {
+                        re_arr_r[j] = (double)src.data[j][i].r;
+                        im_arr_r[j] = 0.0;
+                        re_arr_b[j] = (double)src.data[j][i].b;
+                        im_arr_b[j] = 0.0;
+                        re_arr_g[j] = (double)src.data[j][i].g;
+                        im_arr_g[j] = 0.0;
+                }
+                if (strcmp(function, "idft") == 0)
+                {
+                        idft(re_arr_r, im_arr_r, Re_tmp_r, Im_tmp_r, src.W);
+                        idft(re_arr_b, im_arr_b, Re_tmp_b, Im_tmp_b, src.W);
+                        idft(re_arr_g, im_arr_g, Re_tmp_g, Im_tmp_g, src.W);
+                        for (int j = 0; j < src.W; j++)
+                        {
+                                Re_arr_r[j][i] = Re_tmp_r[j];
+                                Im_arr_r[j][i] = Im_tmp_r[j];
+                                Re_arr_b[j][i] = Re_tmp_b[j];
+                                Im_arr_b[j][i] = Im_tmp_b[j];
+                                Re_arr_g[j][i] = Re_tmp_g[j];
+                                Im_arr_g[j][i] = Im_tmp_g[j];
+                        }
+                }
+                else if (strcmp(function, "ifft") == 0)
+                {
+                        fft(src.W, 1, re_arr_r, im_arr_r);
+                        fft(src.W, 1, re_arr_b, im_arr_b);
+                        fft(src.W, 1, re_arr_g, im_arr_g);
+                        // printf("i = %d, re_arr[0] = %lf\n",i,re_arr[0]);
+                        for (int j = 0; j < src.W; j++)
+                        {
+                                Re_arr_r[j][i] = re_arr_r[j];
+                                Im_arr_r[j][i] = im_arr_r[j];
+                                Re_arr_b[j][i] = re_arr_b[j];
+                                Im_arr_b[j][i] = im_arr_b[j];
+                                Re_arr_g[j][i] = re_arr_g[j];
+                                Im_arr_g[j][i] = im_arr_g[j];
+                        }
+                }
+        }
+        for (int i = 0; i < src.W; i++)
+        {
+                for (int j = 0; j < src.H; j++)
+                {
+                        re_arr_r[j] = Re_arr_r[i][j];
+                        im_arr_r[j] = Im_arr_r[i][j];
+                        re_arr_b[j] = Re_arr_b[i][j];
+                        im_arr_b[j] = Im_arr_b[i][j];
+                        re_arr_g[j] = Re_arr_g[i][j];
+                        im_arr_g[j] = Im_arr_g[i][j];
+                }
+                if (strcmp(function, "idft") == 0)
+                {
+                        idft(re_arr_r, im_arr_r, Re_tmp_r, Im_tmp_r, src.H);
+                        idft(re_arr_b, im_arr_b, Re_tmp_b, Im_tmp_b, src.H);
+                        idft(re_arr_g, im_arr_g, Re_tmp_g, Im_tmp_g, src.H);
+                        for (int j = 0; j < src.H; j++)
+                        {
+                                dst.data[i][j].r = (int)Re_tmp_r[j];
+                                dst.data[i][j].b = (int)Re_tmp_b[j];
+                                dst.data[i][j].g = (int)Re_tmp_g[j];
+                        }
+                }
+                else if (strcmp(function, "ifft") == 0)
+                {
+                        fft(src.H, 1, re_arr_r, im_arr_r);
+                        fft(src.H, 1, re_arr_b, im_arr_b);
+                        fft(src.H, 1, re_arr_g, im_arr_g);
+                        // printf("i = %d, re_arr[0] = %lf\n",i,re_arr[0]);
+                        for (int j = 0; j < src.W; j++)
+                        {
+                                dst.data[i][j].r = (int)re_arr_r[j];
+                                dst.data[i][j].b = (int)re_arr_b[j];
+                                dst.data[i][j].g = (int)re_arr_g[j];
+                        }
+                }
+        }
+}
+
+
 int file_load_and_write(char filename1[], char filename2[], char function[])
 {
         FILE *fp1, *fp2; // FILE型構造体
@@ -349,7 +538,6 @@ int main(void)
         printf("1dim ifft is completed...\n");
         // excelなどでグラフを書いて確認をしてみてください。
 
-        // char path1[SIZE],blue_save_path[SIZE],gray_save_path[SIZE];
 
         // 2次元離散フーリエ変換
         //グレー画像
@@ -372,10 +560,10 @@ int main(void)
         //■画像処理//////////////////////////////////////////////////////////////
         // Binarization(gray, gout, 128); //grayを閾値128で二値化してgoutに出力
 
-        // 1次元離散フーリエ変換
+        // 2次元離散フーリエ変換
         // two_dimension_fourier(gray,gout_dft,"dft");
 
-        // 1次元高速離散フーリエ変換
+        // 2次元高速離散フーリエ変換
         two_dimension_fourier(gray, gout_dft, "fft");
         //画像の一部を出力
         // for(int i=0;i<16;i++){
@@ -386,10 +574,10 @@ int main(void)
         // }
         char gout_dft_path[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\results\\two_dft_lenna.pgm";
         gout_dft.save(gout_dft_path);
-        // 1次元逆離散フーリエ変換
+        // 2次元逆離散フーリエ変換
         // inverse_two_dimension_fourier(gout_dft,gout_idft,"idft");
 
-        // 1次元逆高速離散フーリエ変換
+        // 2次元逆高速離散フーリエ変換
         inverse_two_dimension_fourier(gout_dft, gout_idft, "ifft");
         //画像の一部を出力
         // for(int i=0;i<16;i++){
@@ -403,29 +591,46 @@ int main(void)
         char gout_idft_path[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\results\\two_idft_lenna.pgm";
         gout_idft.save(gout_idft_path);
 
-        // Image<COLOR> img,dst,nega;	//カラー画像
+        // Image<COLOR> img,img_dft,img_idft;	//カラー画像
         // char path1[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\pictures\\lenna.ppm";
         // img.load( path1 );	//lenna.ppmをimgにロードする
+        // img_dft.create( img.W, img.H ); 
+        // img_idft.create( img.W, img.H );
 
-        // dst.create( img.W, img.H );  // dstに　img.W(画像imgの横幅) x img.H(画像imgの縦幅) の大きさの画素配列を用意する
-        // nega.create( img.W, img.H ); // negaに img.W(画像imgの横幅) x img.H(画像imgの縦幅) の大きさの画素配列を用意する
-
-        //■画像処理//////////////////////////////////////////////////////////////
-
-        // int i, j;
-        //lenna.ppmの画像の青色だけゼロにする
-
-        // for( i = 0; i < img.H; i++ ){
-        // 	for( j =0; j < img.W; j++ ){
-        // 		dst.data[i][j].r = img.data[i][j].r;
-        // 		dst.data[i][j].g = img.data[i][j].g;
-        // 		dst.data[i][j].b = 0;
-        // 	}
+        // for(int i=0;i<16;i++){
+        //         for(int j=0;j<16;j++){
+        //         printf("%4d, ",img.data[i][j].r);
+        //         }
+        //         printf("\n");
         // }
+        // //■画像処理//////////////////////////////////////////////////////////////
+        // // int i, j;
+        // //lenna.ppmの画像の青色だけゼロにする
+        // // for( i = 0; i < img.H; i++ ){
+        // // 	for( j =0; j < img.W; j++ ){
+        // // 		dst.data[i][j].r = img.data[i][j].r;
+        // // 		dst.data[i][j].g = img.data[i][j].g;
+        // // 		dst.data[i][j].b = 0;
+        // // 	}
+        // // }
+        // two_dimension_fourier_color(img,img_dft,"fft");
+        // for(int i=0;i<16;i++){
+        //         for(int j=0;j<16;j++){
+        //         printf("%4d, ",img_dft.data[i][j].r);
+        //         }
+        //         printf("\n");
+        // }
+        // char color_dft_path[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\results\\two_dft_lenna.ppm";
+        // img_dft.save( color_dft_path );
 
-        // //■保存
-        // char blue_save_path[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\results\\blueZero.ppm";
-        // char gray_save_path[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\results\\Binarization.pgm";
-        // dst.save( blue_save_path ); // blueZero.ppm という名前でdstを保存
+        // inverse_two_dimension_fourier_color(img_dft,img_idft,"ifft");
+        // for(int i=0;i<16;i++){
+        //         for(int j=0;j<16;j++){
+        //         printf("%4d, ",img_idft.data[i][j].r);
+        //         }
+        //         printf("\n");
+        // }
+        // char color_idft_path[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\results\\two_idft_lenna.ppm";
+        // img_idft.save( color_idft_path );
         return 0;
 }
