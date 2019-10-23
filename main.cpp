@@ -29,9 +29,26 @@ void Binarization(Image<GRAY> src, Image<GRAY> &dst, int threshold)
         }
 }
 //nが2の累乗かどうかを確認する
+//nが2の累乗でなければそれを2の累乗に切り上げた数値を返す
 int isPowerOfTwo(int n) {
-    return (n & (n - 1)) == 0;
+        int pow = 2;
+        if ((n & (n - 1)) == 0){
+                return 0;
+        }else{
+                while(n > pow){
+                        pow *= 2;
+                }
+                return pow;
+        }
 }
+
+//最小の2の累乗になるまでpaddingする
+int padding_arr(double *arr, int n1, int n2){
+  for(int i=n1;i<n2;i++){
+    arr[i] = 0.0;
+  }
+}
+
 // 高速フーリエ変換
 // int n ：データ数（２のべき乗）
 // int flg ：順変換:-1, 逆変換:1
@@ -42,11 +59,13 @@ int fft(int n, int flg, double *ar, double *ai)
         long m, mh, i, j, k, irev;
         double wr, wi, xr, xi;
         double theta;
+        int Is2bit = isPowerOfTwo(n);
 
-        if(isPowerOfTwo(n) == 0){
+        if(Is2bit != 0){
                 printf("If you want to use fft or ifft, resize the image.\n");
-                printf("It must be (2^n, 2^n)\n");
-                return 0;
+                padding_arr(ar,n,Is2bit);
+                padding_arr(ai,n,Is2bit);
+                n = Is2bit;
         }
 
         theta = flg * 2 * PI / n;
@@ -141,12 +160,13 @@ double idft(double Re[], double Im[], double re[], double im[], int N)
         }
 }
 
-void two_dimension_fourier(Image<GRAY> src, Image<GRAY> &dst, char function[])
+// void two_dimension_fourier(Image<GRAY> src, Image<GRAY> &dst, char function[], double re[256][256], double im[256][256])
+void two_dimension_fourier(Image<GRAY> src, Image<GRAY> &dst, char function[], Image<GRAY> &dst_im)
 {
-        double re_arr[SIZE], im_arr[SIZE], Re_tmp[SIZE], Im_tmp[SIZE];
-        double Re_arr[256][256], Im_arr[256][256]; //こいつやばい
         // printf("src.data[0][255] = %d\n",src.data[0][255]);
-
+        double re_arr[SIZE], im_arr[SIZE], Re_tmp[SIZE], Im_tmp[SIZE];
+        double Re_arr[256][256], Im_arr[256][256]; //こいつやばいので注意
+        
         for (int i = 0; i < src.H; i++)
         {
                 for (int j = 0; j < src.W; j++)
@@ -188,7 +208,9 @@ void two_dimension_fourier(Image<GRAY> src, Image<GRAY> &dst, char function[])
                         for (int j = 0; j < src.H; j++)
                         {
                                 dst.data[j][i] = (int)Re_tmp[j];
-                                // dst.data[j][i] = Im_tmp[j];
+                                dst_im.data[j][i] = (int)Im_tmp[j];
+                                // re[j][i] = re_arr[j];
+                                // im[j][i] = im_arr[j];
                         }
                 }
                 else if (strcmp(function, "fft") == 0)
@@ -198,12 +220,16 @@ void two_dimension_fourier(Image<GRAY> src, Image<GRAY> &dst, char function[])
                         for (int j = 0; j < src.W; j++)
                         {
                                 dst.data[j][i] = (int)re_arr[j];
+                                dst_im.data[j][i] = (int)re_arr[j];
+                                // re[j][i] = re_arr[j];
+                                // im[j][i] = im_arr[j];
                         }
                 }
         }
 }
 
-void inverse_two_dimension_fourier(Image<GRAY> src, Image<GRAY> &dst, char function[])
+// void inverse_two_dimension_fourier(Image<GRAY> src, Image<GRAY> &dst, char function[], double re[][256], double im[][256])
+void inverse_two_dimension_fourier(Image<GRAY> src, Image<GRAY> &dst, char function[], Image<GRAY> src_im)
 {
         double re_arr[SIZE], im_arr[SIZE], Re_tmp[SIZE], Im_tmp[SIZE];
         double Re_arr[256][256], Im_arr[256][256];
@@ -212,7 +238,9 @@ void inverse_two_dimension_fourier(Image<GRAY> src, Image<GRAY> &dst, char funct
                 for (int j = 0; j < src.W; j++)
                 {
                         re_arr[j] = (double)src.data[j][i];
-                        im_arr[j] = 0.0;
+                        re_arr[j] = (double)src_im.data[j][i];
+                        // re_arr[j] = re[j][i];
+                        // im_arr[j] = im[j][i];
                 }
                 if (strcmp(function, "idft") == 0)
                 {
@@ -248,7 +276,8 @@ void inverse_two_dimension_fourier(Image<GRAY> src, Image<GRAY> &dst, char funct
                         for (int j = 0; j < src.H; j++)
                         {
                                 dst.data[i][j] = (int)Re_tmp[j];
-                                // dst.data[j][i] = Im_tmp[j];
+                                // re[i][j] = re_arr[j];
+                                // im[i][j] = im_arr[j];
                         }
                 }
                 else if (strcmp(function, "ifft") == 0)
@@ -258,6 +287,8 @@ void inverse_two_dimension_fourier(Image<GRAY> src, Image<GRAY> &dst, char funct
                         for (int j = 0; j < src.W; j++)
                         {
                                 dst.data[i][j] = (int)re_arr[j];
+                                // re[i][j] = re_arr[j];
+                                // im[i][j] = im_arr[j];
                         }
                 }
         }
@@ -542,7 +573,8 @@ int main(void)
         // 2次元離散フーリエ変換
         //グレー画像
         //■配列の宣言
-        Image<GRAY> gray, gout_dft, gout_idft;
+        Image<GRAY> gray, gout_dft, gout_idft,gout_dft_im;
+        // double re[256][256],im[256][256];
         // 画像のパスを各自の環境に変更をしてください。
         char path2[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\pictures\\lenna.pgm";
         //■画像ロード
@@ -556,15 +588,15 @@ int main(void)
         // }
         //■出力配列確保
         gout_dft.create(gray.W, gray.H); // goutに img.W(画像imgの横幅) x img.H(画像imgの縦幅) の大きさの画素配列を用意する
+        gout_dft_im.create(gray.W, gray.H);
         gout_idft.create(gray.W, gray.H);
         //■画像処理//////////////////////////////////////////////////////////////
         // Binarization(gray, gout, 128); //grayを閾値128で二値化してgoutに出力
 
         // 2次元離散フーリエ変換
         // two_dimension_fourier(gray,gout_dft,"dft");
-
         // 2次元高速離散フーリエ変換
-        two_dimension_fourier(gray, gout_dft, "fft");
+        two_dimension_fourier(gray, gout_dft, "fft", gout_dft_im);
         //画像の一部を出力
         // for(int i=0;i<16;i++){
         //         for(int j=0;j<16;j++){
@@ -578,7 +610,7 @@ int main(void)
         // inverse_two_dimension_fourier(gout_dft,gout_idft,"idft");
 
         // 2次元逆高速離散フーリエ変換
-        inverse_two_dimension_fourier(gout_dft, gout_idft, "ifft");
+        inverse_two_dimension_fourier(gout_dft, gout_idft, "ifft",gout_dft_im);
         //画像の一部を出力
         // for(int i=0;i<16;i++){
         //         for(int j=0;j<16;j++){
