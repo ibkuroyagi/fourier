@@ -549,6 +549,10 @@ int file_load_and_write(char filename1[], char filename2[], char function[])
         return 0;
 }
 
+int fft_and_ifft(Image<GRAY> src, Image<GRAY> &dst){
+        
+}
+
 int main(void)
 {
         printf("ready...\n");
@@ -557,7 +561,8 @@ int main(void)
         // printf("1dim dft is completed...\n");
 
         // 1次元高速離散フーリエ変換
-        file_load_and_write("test.csv", "inv_fourier.csv", "fft");
+        // =3*SIN(0.01*RC[-1])+2*SIN(0.1*RC[-1])+SIN(RC[-1])
+        file_load_and_write("test_fft1.csv", "inv_fourier_fft.csv", "fft");
         printf("1dim fft is completed...\n");
 
         // 1次元逆離散フーリエ変換
@@ -565,7 +570,7 @@ int main(void)
         // printf("1dim idft is completed...\n");
 
         // 1次元逆高速離散フーリエ変換
-        file_load_and_write("inv_fourier.csv", "check.csv", "ifft");
+        file_load_and_write("inv_fourier_fft.csv", "check_fft.csv", "ifft");
         printf("1dim ifft is completed...\n");
         // excelなどでグラフを書いて確認をしてみてください。
 
