@@ -8,7 +8,6 @@
 const double PI = 3.141592653589793;
 #define SIZE 4096
 
-
 //グレースケール画像の二値化を行う
 //この関数の引数は，
 //第一引数：Image<GRAY>型の入力画像(&が付いていないときは，コピーが渡されるため，上書きされない)
@@ -31,12 +30,17 @@ void Binarization(Image<GRAY> src, Image<GRAY> &dst, int threshold)
 }
 //nが2の累乗かどうかを確認する
 //nが2の累乗でなければそれを2の累乗に切り上げた数値を返す
-int isPowerOfTwo(int n) {
+int isPowerOfTwo(int n)
+{
         int pow = 2;
-        if ((n & (n - 1)) == 0){
+        if ((n & (n - 1)) == 0)
+        {
                 return 0;
-        }else{
-                while(n > pow){
+        }
+        else
+        {
+                while (n > pow)
+                {
                         pow *= 2;
                 }
                 return pow;
@@ -44,10 +48,12 @@ int isPowerOfTwo(int n) {
 }
 
 //最小の2の累乗になるまでpaddingする
-int padding_arr(double *arr, int n1, int n2){
-  for(int i=n1;i<n2;i++){
-    arr[i] = 0.0;
-  }
+int padding_arr(double *arr, int n1, int n2)
+{
+        for (int i = n1; i < n2; i++)
+        {
+                arr[i] = 0.0;
+        }
 }
 
 // 高速フーリエ変換
@@ -62,10 +68,11 @@ int fft(int n, int flg, double *ar, double *ai)
         double theta;
         int Is2bit = isPowerOfTwo(n);
 
-        if(Is2bit != 0){
+        if (Is2bit != 0)
+        {
                 printf("If you want to use fft or ifft, resize the image.\n");
-                padding_arr(ar,n,Is2bit);
-                padding_arr(ai,n,Is2bit);
+                padding_arr(ar, n, Is2bit);
+                padding_arr(ai, n, Is2bit);
                 n = Is2bit;
         }
 
@@ -167,7 +174,7 @@ void two_dimension_fourier(Image<GRAY> src, Image<GRAY> &dst, char function[], I
         // printf("src.data[0][255] = %d\n",src.data[0][255]);
         double re_arr[SIZE], im_arr[SIZE], Re_tmp[SIZE], Im_tmp[SIZE];
         double Re_arr[256][256], Im_arr[256][256]; //こいつやばいので注意
-        
+
         for (int i = 0; i < src.H; i++)
         {
                 for (int j = 0; j < src.W; j++)
@@ -295,10 +302,8 @@ void inverse_two_dimension_fourier(Image<GRAY> src, Image<GRAY> &dst, char funct
         }
 }
 
-
-
 void two_dimension_fourier_color(Image<COLOR> src, Image<COLOR> &dst, char function[])
-{       
+{
         // printf("hello\n");
         // printf("src.data[0][255].r = %d\n",src.data[0][255].r);
         // double re_arr_r[SIZE], im_arr_r[SIZE], Re_tmp_r[SIZE], Im_tmp_r[SIZE];
@@ -307,7 +312,7 @@ void two_dimension_fourier_color(Image<COLOR> src, Image<COLOR> &dst, char funct
         double re_arr_r[256], im_arr_r[256], Re_tmp_r[256], Im_tmp_r[256];
         double re_arr_b[256], im_arr_b[256], Re_tmp_b[256], Im_tmp_b[256];
         double re_arr_g[256], im_arr_g[256], Re_tmp_g[256], Im_tmp_g[256];
-        double Re_arr_r[256][256], Im_arr_r[256][256]; 
+        double Re_arr_r[256][256], Im_arr_r[256][256];
         double Re_arr_b[256][256], Im_arr_b[256][256];
         double Re_arr_g[256][256], Im_arr_g[256][256];
         // printf("src.data[0][255].r = %d\n",src.data[0][255].r);
@@ -400,7 +405,7 @@ void inverse_two_dimension_fourier_color(Image<COLOR> src, Image<COLOR> &dst, ch
         double re_arr_r[SIZE], im_arr_r[SIZE], Re_tmp_r[SIZE], Im_tmp_r[SIZE];
         double re_arr_b[SIZE], im_arr_b[SIZE], Re_tmp_b[SIZE], Im_tmp_b[SIZE];
         double re_arr_g[SIZE], im_arr_g[SIZE], Re_tmp_g[SIZE], Im_tmp_g[SIZE];
-        double Re_arr_r[256][256], Im_arr_r[256][256]; 
+        double Re_arr_r[256][256], Im_arr_r[256][256];
         double Re_arr_b[256][256], Im_arr_b[256][256];
         double Re_arr_g[256][256], Im_arr_g[256][256];
 
@@ -486,7 +491,6 @@ void inverse_two_dimension_fourier_color(Image<COLOR> src, Image<COLOR> &dst, ch
         }
 }
 
-
 int file_load_and_write(char filename1[], char filename2[], char function[])
 {
         FILE *fp1, *fp2; // FILE型構造体
@@ -553,12 +557,13 @@ int file_load_and_write(char filename1[], char filename2[], char function[])
         return 0;
 }
 
-int fft_and_ifft(Image<GRAY> src, Image<GRAY> &dst, char function[]){
+int fft_and_ifft(Image<GRAY> src, Image<GRAY> &dst, char function[])
+{
         // printf("src.data[0][255] = %d\n",src.data[0][255]);
         double re_arr[SIZE], im_arr[SIZE], Re_tmp[SIZE], Im_tmp[SIZE];
-        double Re_arr[256][256], Im_arr[256][256]; //こいつやばいので注意
+        double Re_arr[256][256], Im_arr[256][256];         //こいつやばいので注意
         double Re_arr_tmp[256][256], Im_arr_tmp[256][256]; //こいつやばいので注意
-        
+
         for (int i = 0; i < src.H; i++)
         {
                 for (int j = 0; j < src.W; j++)
@@ -622,7 +627,6 @@ int fft_and_ifft(Image<GRAY> src, Image<GRAY> &dst, char function[]){
                         }
                 }
         }
-
 
         // double re_arr[SIZE], im_arr[SIZE], Re_tmp[SIZE], Im_tmp[SIZE];
         // double Re_arr[256][256], Im_arr[256][256];
@@ -689,14 +693,15 @@ int fft_and_ifft(Image<GRAY> src, Image<GRAY> &dst, char function[]){
         }
 }
 
-int fft_and_ifft_color(Image<COLOR> src, Image<COLOR> &dst, char function[]){
+int fft_and_ifft_color(Image<COLOR> src, Image<COLOR> &dst, char function[])
+{
         double re_arr_r[256], im_arr_r[256], Re_tmp_r[256], Im_tmp_r[256];
         double re_arr_b[256], im_arr_b[256], Re_tmp_b[256], Im_tmp_b[256];
         double re_arr_g[256], im_arr_g[256], Re_tmp_g[256], Im_tmp_g[256];
-        double Re_arr_r[256][256], Im_arr_r[256][256]; 
+        double Re_arr_r[256][256], Im_arr_r[256][256];
         double Re_arr_b[256][256], Im_arr_b[256][256];
         double Re_arr_g[256][256], Im_arr_g[256][256];
-        double Re_arr_r_tmp[256][256], Im_arr_r_tmp[256][256]; 
+        double Re_arr_r_tmp[256][256], Im_arr_r_tmp[256][256];
         double Re_arr_b_tmp[256][256], Im_arr_b_tmp[256][256];
         double Re_arr_g_tmp[256][256], Im_arr_g_tmp[256][256];
         // printf("src.data[0][255].r = %d\n",src.data[0][255].r);
@@ -795,9 +800,6 @@ int fft_and_ifft_color(Image<COLOR> src, Image<COLOR> &dst, char function[]){
                 }
         }
 
-
-
-
         ///////////
         for (int i = 0; i < src.H; i++)
         {
@@ -879,15 +881,18 @@ int fft_and_ifft_color(Image<COLOR> src, Image<COLOR> &dst, char function[]){
                         }
                 }
         }
-
 }
 int kernel_filter(Image<GRAY> src, Image<GRAY> &dst)
 {
 
+        // double kernel[3][3] = {
+        //     {1.0 / 9.0, 1.0 / 9.0, 1.0 / 9.0},
+        //     {1.0 / 9.0, 1.0 / 9.0, 1.0 / 9.0},
+        //     {1.0 / 9.0, 1.0 / 9.0, 1.0 / 9.0}}; //移動平均フィルタ
         double kernel[3][3] = {
-            {1.0 / 9.0, 1.0 / 9.0, 1.0 / 9.0},
-            {1.0 / 9.0, 1.0 / 9.0, 1.0 / 9.0},
-            {1.0 / 9.0, 1.0 / 9.0, 1.0 / 9.0}}; //移動平均フィルタ
+            {-1.0, 0.0, -1.0},
+            {0.0, 4.0, 0.0},
+            {-1.0, 0.0, -1.0}};
 
         int k_size = 1;
         // kernelを適応できない縁はそのままの値を代入する
@@ -922,6 +927,63 @@ int kernel_filter(Image<GRAY> src, Image<GRAY> &dst)
         return 0;
 }
 
+int kernel_filter_color(Image<COLOR> src, Image<COLOR> &dst)
+{
+
+        // double kernel[3][3] = {
+        //     {1.0 / 9.0, 1.0 / 9.0, 1.0 / 9.0},
+        //     {1.0 / 9.0, 1.0 / 9.0, 1.0 / 9.0},
+        //     {1.0 / 9.0, 1.0 / 9.0, 1.0 / 9.0}}; //移動平均フィルタ
+        double kernel[3][3] = {
+            {-1.0, 0.0, -1.0},
+            {0.0, 4.0, 0.0},
+            {-1.0, 0.0, -1.0}}; //移動平均フィルタ
+        int k_size = 1;
+        // kernelを適応できない縁はそのままの値を代入する
+        for (int i = 0; i < src.H - 1; i++)
+        { //上、右、左、下
+                dst.data[0][i].r = src.data[0][i].r;
+                dst.data[0][i].b = src.data[0][i].b;
+                dst.data[0][i].g = src.data[0][i].g;
+                dst.data[i][src.W - 1].r = src.data[i][src.W - 1].r;
+                dst.data[i][src.W - 1].b = src.data[i][src.W - 1].b;
+                dst.data[i][src.W - 1].g = src.data[i][src.W - 1].g;
+                dst.data[i + 1][0].r = src.data[i + 1][0].r;
+                dst.data[i + 1][0].b = src.data[i + 1][0].b;
+                dst.data[i + 1][0].g = src.data[i + 1][0].g;
+                dst.data[src.H - 1][i + 1].r = src.data[src.H - 1][i + 1].r;
+                dst.data[src.H - 1][i + 1].b = src.data[src.H - 1][i + 1].b;
+                dst.data[src.H - 1][i + 1].g = src.data[src.H - 1][i + 1].g;
+        }
+        //kernelと画像の和を保存する配列
+        double sum_result_r, sum_result_b, sum_result_g;
+        for (int i = 1; i < src.H - 1; i++)
+        {
+                for (int j = 1; j < src.W - 1; j++)
+                {
+                        // src.data[i][j]を指定したときの処理を以下に記述する
+                        // src.data[i][j]の周囲を指定し、kernelとの積をsum_resultに保存する
+                        // sum_resultをdst.data[i][j]に保存する
+                        for (int p = 0; p < k_size * 2 + 1; p++)
+                        {
+                                for (int q = 0; q < k_size * 2 + 1; q++)
+                                {
+                                        sum_result_r += kernel[p][q] * (double)src.data[i - 1 + p][j - 1 + q].r;
+                                        sum_result_b += kernel[p][q] * (double)src.data[i - 1 + p][j - 1 + q].b;
+                                        sum_result_g += kernel[p][q] * (double)src.data[i - 1 + p][j - 1 + q].g;
+                                }
+                        }
+                        dst.data[i][j].r = (int)sum_result_r;
+                        dst.data[i][j].b = (int)sum_result_b;
+                        dst.data[i][j].g = (int)sum_result_g;
+                        sum_result_r = 0.0;
+                        sum_result_b = 0.0;
+                        sum_result_g = 0.0;
+                        // printf("dst.data[%d][%d] = %d\n",i,j,dst.data[i][j]);
+                }
+        }
+        return 0;
+}
 
 int main(void)
 {
@@ -944,11 +1006,10 @@ int main(void)
         printf("1dim ifft is completed...\n");
         // excelなどでグラフを書いて確認をしてみてください。
 
-
         // 2次元離散フーリエ変換
         //グレー画像
         //■配列の宣言
-        Image<GRAY> gray, gout_dft, gout_idft,gout_dft_im,gout_mean;
+        Image<GRAY> gray, gout_dft, gout_idft, gout_dft_im, gout_mean;
         // 画像のパスを各自の環境に変更をしてください。
         // char path2[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\pictures\\lenna.pgm";
         char path2[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\pictures\\mandrill.pgm";
@@ -967,7 +1028,7 @@ int main(void)
         gout_dft.create(gray.W, gray.H); // goutに img.W(画像imgの横幅) x img.H(画像imgの縦幅) の大きさの画素配列を用意する
         gout_dft_im.create(gray.W, gray.H);
         gout_idft.create(gray.W, gray.H);
-        gout_mean.create(gray.W,gray.H);
+        gout_mean.create(gray.W, gray.H);
         //■画像処理//////////////////////////////////////////////////////////////
         // Binarization(gray, gout, 128); //grayを閾値128で二値化してgoutに出力
 
@@ -975,16 +1036,10 @@ int main(void)
         // two_dimension_fourier(gray,gout_dft,"dft");
         // 2次元高速離散フーリエ変換
         // two_dimension_fourier(gray, gout_dft, "fft", gout_dft_im);
-        //画像の一部を出力
-        // for(int i=0;i<16;i++){
-        //         for(int j=0;j<16;j++){
-        //         printf("%4d, ",gout_dft.data[i][j]);
-        //         }
-        //         printf("\n");
-        // }
+
         // char gout_dft_path[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\results\\two_dft_lenna.pgm";
         // char gout_dft_path[] = "./results/two_dft_lenna.pgm";
-        
+
         // gout_dft.save(gout_dft_path);
         // 2次元逆離散フーリエ変換
         // inverse_two_dimension_fourier(gout_dft,gout_idft,"idft");
@@ -1005,20 +1060,18 @@ int main(void)
         // char gout_idft_path[] = "./results/two_idft_mandrill.pgm";
         // fft_and_ifft(gray,gout_idft,"fft");
         // gout_idft.save(gout_idft_path);
-        char gout_mean_path[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\results\\mandrill_mean.pgm";
+        char gout_mean_path[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\results\\mandrill_elb.pgm";
         // char gout_mean_path[] = "./results/mandrill_mean.pgm";
-        kernel_filter(gray,gout_mean);
+        kernel_filter(gray, gout_mean);
         gout_mean.save(gout_mean_path);
 
-
-        
-
-        Image<COLOR> img,img_dft,img_idft;	//カラー画像
-        // char path1[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\pictures\\lenna.ppm";
-        char path1[] = "./pictures/lenna.ppm";
-        img.load( path1 );	//lenna.ppmをimgにロードする
-        img_dft.create( img.W, img.H ); 
-        img_idft.create( img.W, img.H );
+        Image<COLOR> img, img_dft, img_idft, img_mean; //カラー画像
+        char path1[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\pictures\\lenna.ppm";
+        // char path1[] = "./pictures/lenna.ppm";
+        img.load(path1); //lenna.ppmをimgにロードする
+        img_dft.create(img.W, img.H);
+        img_idft.create(img.W, img.H);
+        img_mean.create(img.W, img.H);
 
         // for(int i=0;i<16;i++){
         //         for(int j=0;j<16;j++){
@@ -1026,18 +1079,9 @@ int main(void)
         //         }
         //         printf("\n");
         // }
-        // //■画像処理//////////////////////////////////////////////////////////////
-        // // int i, j;
-        // //lenna.ppmの画像の青色だけゼロにする
-        // // for( i = 0; i < img.H; i++ ){
-        // // 	for( j =0; j < img.W; j++ ){
-        // // 		dst.data[i][j].r = img.data[i][j].r;
-        // // 		dst.data[i][j].g = img.data[i][j].g;
-        // // 		dst.data[i][j].b = 0;
-        // // 	}
-        // // }
+
         // two_dimension_fourier_color(img,img_dft,"fft");
-        fft_and_ifft_color(img,img_dft,"fft");
+        // fft_and_ifft_color(img,img_dft,"fft");
         // for(int i=0;i<16;i++){
         //         for(int j=0;j<16;j++){
         //         printf("%4d, ",img_dft.data[i][j].r);
@@ -1045,8 +1089,8 @@ int main(void)
         //         printf("\n");
         // }
         // char color_dft_path[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\results\\two_dft_lenna.ppm";
-        char color_dft_path[] = "./results/two_dft_lenna.ppm";
-        img_dft.save( color_dft_path );
+        // char color_dft_path[] = "./results/two_dft_lenna.ppm";
+        // img_dft.save( color_dft_path );
 
         // inverse_two_dimension_fourier_color(img_dft,img_idft,"ifft");
         // for(int i=0;i<16;i++){
@@ -1057,5 +1101,8 @@ int main(void)
         // }
         // char color_idft_path[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\results\\two_idft_lenna.ppm";
         // img_idft.save( color_idft_path );
+        kernel_filter_color(img, img_mean);
+        char color_mean_path[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\results\\lenna_elb.ppm";
+        img_mean.save(color_mean_path);
         return 0;
 }
