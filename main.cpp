@@ -915,6 +915,7 @@ int kernel_filter(Image<GRAY> src, Image<GRAY> &dst)
                                 }
                         }
                         dst.data[i][j] = (int)sum_result;
+                        sum_result = 0.0;
                         // printf("dst.data[%d][%d] = %d\n",i,j,dst.data[i][j]);
                 }
         }
@@ -950,9 +951,9 @@ int main(void)
         Image<GRAY> gray, gout_dft, gout_idft,gout_dft_im,gout_mean;
         // 画像のパスを各自の環境に変更をしてください。
         // char path2[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\pictures\\lenna.pgm";
-        // char path2[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\pictures\\mandrill.pgm";
+        char path2[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\pictures\\mandrill.pgm";
         // char path2[] = "./pictures/lenna.pgm";
-        char path2[] = "./pictures/mandrill.pgm";
+        // char path2[] = "./pictures/mandrill.pgm";
         //■画像ロード
         gray.load(path2); //lenna.pgmをgrayにロードする
         //画像の一部を出力
@@ -1001,11 +1002,11 @@ int main(void)
 
         // char gout_idft_path[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\results\\two_idft_mandrill.pgm";
         // char gout_idft_path[] = "./results/two_idft_lenna.pgm";
-        char gout_idft_path[] = "./results/two_idft_mandrill.pgm";
-        fft_and_ifft(gray,gout_idft,"fft");
-        gout_idft.save(gout_idft_path);
-        // char gout_mean_path[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\results\\mandrill_mean.pgm";
-        char gout_mean_path[] = "./results/mandrill_mean.pgm";
+        // char gout_idft_path[] = "./results/two_idft_mandrill.pgm";
+        // fft_and_ifft(gray,gout_idft,"fft");
+        // gout_idft.save(gout_idft_path);
+        char gout_mean_path[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\results\\mandrill_mean.pgm";
+        // char gout_mean_path[] = "./results/mandrill_mean.pgm";
         kernel_filter(gray,gout_mean);
         gout_mean.save(gout_mean_path);
 
