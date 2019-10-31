@@ -881,6 +881,45 @@ int fft_and_ifft_color(Image<COLOR> src, Image<COLOR> &dst, char function[]){
         }
 
 }
+int kernel_filter(Image<GRAY> src, Image<GRAY> &dst)
+{
+
+        double kernel[3][3] = {
+            {1.0 / 9.0, 1.0 / 9.0, 1.0 / 9.0},
+            {1.0 / 9.0, 1.0 / 9.0, 1.0 / 9.0},
+            {1.0 / 9.0, 1.0 / 9.0, 1.0 / 9.0}}; //移動平均フィルタ
+
+        int k_size = 1;
+        // kernelを適応できない縁はそのままの値を代入する
+        for (int i = 0; i < src.H - 1; i++)
+        { //上、右、左、下
+                dst.data[0][i] = src.data[0][i];
+                dst.data[i][src.W - 1] = src.data[i][src.W - 1];
+                dst.data[i + 1][0] = src.data[i + 1][0];
+                dst.data[src.H - 1][i + 1] = src.data[src.H - 1][i + 1];
+        }
+        //kernelと画像の和を保存する配列
+        double sum_result;
+        for (int i = 1; i < src.H - 1; i++)
+        {
+                for (int j = 1; j < src.W - 1; j++)
+                {
+                        // src.data[i][j]を指定したときの処理を以下に記述する
+                        // src.data[i][j]の周囲を指定し、kernelとの積をsum_resultに保存する
+                        // sum_resultをdst.data[i][j]に保存する
+                        for (int p = 0; p < k_size * 2 + 1; p++)
+                        {
+                                for (int q = 0; q < k_size * 2 + 1; q++)
+                                {
+                                        sum_result += kernel[p][q] * (double)src.data[i - 1 + p][j - 1 + q];
+                                }
+                        }
+                        dst.data[i][j] = (int)sum_result;
+                        // printf("dst.data[%d][%d] = %d\n",i,j,dst.data[i][j]);
+                }
+        }
+        return 0;
+}
 
 
 int main(void)
@@ -908,10 +947,10 @@ int main(void)
         // 2次元離散フーリエ変換
         //グレー画像
         //■配列の宣言
-        Image<GRAY> gray, gout_dft, gout_idft,gout_dft_im;
-        // double re[256][256],im[256][256];
+        Image<GRAY> gray, gout_dft, gout_idft,gout_dft_im,gout_mean;
         // 画像のパスを各自の環境に変更をしてください。
         // char path2[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\pictures\\lenna.pgm";
+        // char path2[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\pictures\\mandrill.pgm";
         // char path2[] = "./pictures/lenna.pgm";
         char path2[] = "./pictures/mandrill.pgm";
         //■画像ロード
@@ -927,13 +966,14 @@ int main(void)
         gout_dft.create(gray.W, gray.H); // goutに img.W(画像imgの横幅) x img.H(画像imgの縦幅) の大きさの画素配列を用意する
         gout_dft_im.create(gray.W, gray.H);
         gout_idft.create(gray.W, gray.H);
+        gout_mean.create(gray.W,gray.H);
         //■画像処理//////////////////////////////////////////////////////////////
         // Binarization(gray, gout, 128); //grayを閾値128で二値化してgoutに出力
 
         // 2次元離散フーリエ変換
         // two_dimension_fourier(gray,gout_dft,"dft");
         // 2次元高速離散フーリエ変換
-        two_dimension_fourier(gray, gout_dft, "fft", gout_dft_im);
+        // two_dimension_fourier(gray, gout_dft, "fft", gout_dft_im);
         //画像の一部を出力
         // for(int i=0;i<16;i++){
         //         for(int j=0;j<16;j++){
@@ -942,14 +982,14 @@ int main(void)
         //         printf("\n");
         // }
         // char gout_dft_path[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\results\\two_dft_lenna.pgm";
-        char gout_dft_path[] = "./results/two_dft_lenna.pgm";
+        // char gout_dft_path[] = "./results/two_dft_lenna.pgm";
         
-        gout_dft.save(gout_dft_path);
+        // gout_dft.save(gout_dft_path);
         // 2次元逆離散フーリエ変換
         // inverse_two_dimension_fourier(gout_dft,gout_idft,"idft");
 
         // 2次元逆高速離散フーリエ変換
-        inverse_two_dimension_fourier(gout_dft, gout_idft, "ifft",gout_dft_im);
+        // inverse_two_dimension_fourier(gout_dft, gout_idft, "ifft",gout_dft_im);
         //画像の一部を出力
         // for(int i=0;i<16;i++){
         //         for(int j=0;j<16;j++){
@@ -959,13 +999,18 @@ int main(void)
         //         printf("\n");
         // }
 
-        // char gout_idft_path[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\results\\two_idft_lenna.pgm";
+        // char gout_idft_path[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\results\\two_idft_mandrill.pgm";
         // char gout_idft_path[] = "./results/two_idft_lenna.pgm";
         char gout_idft_path[] = "./results/two_idft_mandrill.pgm";
-
         fft_and_ifft(gray,gout_idft,"fft");
-
         gout_idft.save(gout_idft_path);
+        // char gout_mean_path[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\results\\mandrill_mean.pgm";
+        char gout_mean_path[] = "./results/mandrill_mean.pgm";
+        kernel_filter(gray,gout_mean);
+        gout_mean.save(gout_mean_path);
+
+
+        
 
         Image<COLOR> img,img_dft,img_idft;	//カラー画像
         // char path1[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\pictures\\lenna.ppm";
