@@ -989,8 +989,8 @@ int main(void)
 {
         printf("ready...\n");
         // 1次元離散フーリエ変換
-        // file_load_and_write("test.csv", "inv_fourier.csv","dft");
-        // printf("1dim dft is completed...\n");
+        file_load_and_write("test.csv", "inv_fourier.csv","dft");
+        printf("1dim dft is completed...\n");
 
         // 1次元高速離散フーリエ変換
         // =3*SIN(0.01*RC[-1])+2*SIN(0.1*RC[-1])+SIN(RC[-1])
@@ -998,8 +998,8 @@ int main(void)
         printf("1dim fft is completed...\n");
 
         // 1次元逆離散フーリエ変換
-        // file_load_and_write("inv_fourier.csv", "check.csv","idft");
-        // printf("1dim idft is completed...\n");
+        file_load_and_write("inv_fourier.csv", "check.csv","idft");
+        printf("1dim idft is completed...\n");
 
         // 1次元逆高速離散フーリエ変換
         file_load_and_write("inv_fourier_fft.csv", "check_fft.csv", "ifft");
@@ -1009,7 +1009,7 @@ int main(void)
         // 2次元離散フーリエ変換
         //グレー画像
         //■配列の宣言
-        Image<GRAY> gray, gout_dft, gout_idft, gout_dft_im, gout_mean;
+        Image<GRAY> gray, gout_dft, gout_idft, gout_dft_im, gout_mean, gout_idft_im;
         // 画像のパスを各自の環境に変更をしてください。
         // char path2[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\pictures\\lenna.pgm";
         char path2[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\pictures\\mandrill.pgm";
@@ -1029,23 +1029,25 @@ int main(void)
         gout_dft_im.create(gray.W, gray.H);
         gout_idft.create(gray.W, gray.H);
         gout_mean.create(gray.W, gray.H);
+        gout_idft_im.create(gray.W, gray.H);
         //■画像処理//////////////////////////////////////////////////////////////
         // Binarization(gray, gout, 128); //grayを閾値128で二値化してgoutに出力
 
         // 2次元離散フーリエ変換
-        // two_dimension_fourier(gray,gout_dft,"dft");
+        // これらの変換では256以上の値や0以下を含むため画像として保存をしても認識することはできない。そのため、フィルタとして扱うためにはfft_and_ifftを用いる
+        two_dimension_fourier(gray,gout_dft,"dft",gout_dft_im);
         // 2次元高速離散フーリエ変換
-        // two_dimension_fourier(gray, gout_dft, "fft", gout_dft_im);
+        two_dimension_fourier(gray, gout_dft, "fft", gout_dft_im);
 
-        // char gout_dft_path[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\results\\two_dft_lenna.pgm";
+        char gout_dft_path[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\results\\two_dft_lenna.pgm";
         // char gout_dft_path[] = "./results/two_dft_lenna.pgm";
 
-        // gout_dft.save(gout_dft_path);
+        gout_dft.save(gout_dft_path);
         // 2次元逆離散フーリエ変換
-        // inverse_two_dimension_fourier(gout_dft,gout_idft,"idft");
+        inverse_two_dimension_fourier(gout_dft,gout_idft,"idft",gout_idft_im);
 
         // 2次元逆高速離散フーリエ変換
-        // inverse_two_dimension_fourier(gout_dft, gout_idft, "ifft",gout_dft_im);
+        inverse_two_dimension_fourier(gout_dft, gout_idft, "ifft",gout_dft_im);
         //画像の一部を出力
         // for(int i=0;i<16;i++){
         //         for(int j=0;j<16;j++){
@@ -1055,11 +1057,11 @@ int main(void)
         //         printf("\n");
         // }
 
-        // char gout_idft_path[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\results\\two_idft_mandrill.pgm";
+        char gout_idft_path[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\results\\two_idft_mandrill.pgm";
         // char gout_idft_path[] = "./results/two_idft_lenna.pgm";
         // char gout_idft_path[] = "./results/two_idft_mandrill.pgm";
         // fft_and_ifft(gray,gout_idft,"fft");
-        // gout_idft.save(gout_idft_path);
+        gout_idft.save(gout_idft_path);
         char gout_mean_path[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\results\\mandrill_elb.pgm";
         // char gout_mean_path[] = "./results/mandrill_mean.pgm";
         kernel_filter(gray, gout_mean);
@@ -1080,17 +1082,17 @@ int main(void)
         //         printf("\n");
         // }
 
-        // two_dimension_fourier_color(img,img_dft,"fft");
-        // fft_and_ifft_color(img,img_dft,"fft");
+        two_dimension_fourier_color(img,img_dft,"fft");
+        fft_and_ifft_color(img,img_dft,"fft");
         // for(int i=0;i<16;i++){
         //         for(int j=0;j<16;j++){
         //         printf("%4d, ",img_dft.data[i][j].r);
         //         }
         //         printf("\n");
         // }
-        // char color_dft_path[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\results\\two_dft_lenna.ppm";
+        char color_dft_path[] = "C:\\Users\\ibuki\\program\\c\\ImageIO\\results\\two_dft_lenna.ppm";
         // char color_dft_path[] = "./results/two_dft_lenna.ppm";
-        // img_dft.save( color_dft_path );
+        img_dft.save( color_dft_path );
 
         // inverse_two_dimension_fourier_color(img_dft,img_idft,"ifft");
         // for(int i=0;i<16;i++){
